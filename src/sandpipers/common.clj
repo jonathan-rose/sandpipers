@@ -4,9 +4,7 @@
 (def sand-yellow [244 201 103])
 (def damp-sand-yellow [207 166 78])
 (def wet-sand-yellow [169 130 52])
-(def sea-blue [102 132 160])
-(def deep-sea-blue [83 103 132])
-(def deeper-sea-blue [46 45 77])
+(def sea-blue [83 103 182])
 (def sky-blue [98 179 250])
 
 ;; sandpiper colours
