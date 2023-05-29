@@ -28,5 +28,3 @@
 (defn -main
   [& args]
   (qp/run sandpipers-game))
-
-(-main)
