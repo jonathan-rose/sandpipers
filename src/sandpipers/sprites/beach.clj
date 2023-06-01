@@ -17,7 +17,7 @@
         top-right [(q/width) (* (q/height) 0.75)]]
 
     ;; Draw water
-    (qpu/fill common/deep-sea-blue)
+    (qpu/fill common/sea-blue)
     (q/rect 0 sea-level (q/width) (- (q/height) sea-level))
 
     ;; Draw the sand
