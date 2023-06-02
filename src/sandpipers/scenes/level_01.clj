@@ -1,5 +1,6 @@
 (ns sandpipers.scenes.level-01
-  (:require [quip.sprite :as qpsprite]
+  (:require [quil.core :as q]
+            [quip.sprite :as qpsprite]
             [quip.tween :as qptween]
             [quip.utils :as qpu]
             [sandpipers.common :as common]
@@ -13,6 +14,7 @@
 (defn draw-level-01
   "Called each frame, draws the current scene to the screen"
   [state]
+  (q/no-stroke)
   (qpu/background common/sky-blue)
   (qpsprite/draw-scene-sprites state))
 
