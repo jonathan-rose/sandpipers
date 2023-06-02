@@ -36,20 +36,20 @@
       qpsprite/update-scene-sprites
       qptween/update-sprite-tweens))
 
-(defn tween-sandpiper
-  [state rotation]
-  (update-in state
-             [:scenes :level-01 :sprites]
-             (fn [sprites]
-               [(qptween/add-tween
-                 (first sprites)
-                 (qptween/->tween :rotation rotation))])))
-
-(defn handle-key-pressed
+(defn handle-player-movement
   [state e]
-  (case (:key e)
-    :left (tween-sandpiper state 90)
-    :right (tween-sandpiper state -90) state))
+  (let [currently-held? (:held-keys state)]
+    (cond
+      (currently-held? :left) (qpsprite/update-sprites-by-pred state (qpsprite/group-pred :player) (fn [s]
+                                                                                                     (update s :vel (fn [[xvel yvel]]
+                                                                                                                      [-5 yvel]))))
+      (currently-held? :right) (qpsprite/update-sprites-by-pred state (qpsprite/group-pred :player) (fn [s]
+                                                                                                      (update s :vel (fn [[xvel yvel]]
+                                                                                                                       [+5 yvel]))))
+      (currently-held? :down) (qpsprite/update-sprites-by-pred state (qpsprite/group-pred :player) (fn [s]
+                                                                                                      (update s :vel (fn [[xvek yvel]]
+                                                                                                                       [0 yvel]))))
+      :else state)))
 
 (defn init
   "Initialise this scene"
@@ -57,4 +57,4 @@
   {:sprites (sprites)
    :draw-fn draw-level-01
    :update-fn update-level-01
-   :key-pressed-fns [handle-key-pressed]})
+   :key-pressed-fns [handle-player-movement]})
