@@ -1,6 +1,7 @@
 (ns sandpipers.sprites.beach
   "The beach; sand, sea and waves."
   (:require [quil.core :as q]
+            [quip.sprite :as qpsprite]
             [quip.tween :as qptween]
             [quip.utils :as qpu]
             [sandpipers.common :as common]))
@@ -16,7 +17,10 @@
                                   sand-right))))
 
 (defn draw-beach
-  [{:keys [sea-level sand-left sand-right intersection-point] :as s}]
+  [{:keys [sea-level
+           sand-left
+           sand-right
+           intersection-point] :as s}]
   (q/no-stroke)
   (let [bottom-left [0 (q/height)]
         bottom-right [(q/width) (q/height)]]
@@ -36,39 +40,81 @@
            bottom-right]))
     (q/end-shape))
 
-  ;; Show sand and sea intersection lines
-  (q/stroke-weight 3)
-  (q/stroke [255 0 0])
-  (q/line [0 sea-level] [(q/width) sea-level])
-  (q/stroke [0 255 0])
-  (q/line sand-left sand-right)
-  (q/no-stroke)
+  ;; ;; Show sand and sea intersection lines
+  ;; (q/stroke-weight 3)
+  ;; (q/stroke [255 0 0])
+  ;; (q/line [0 sea-level] [(q/width) sea-level])
+  ;; (q/stroke [0 255 0])
+  ;; (q/line sand-left sand-right)
+  ;; (q/no-stroke)
 
-  ;; temporary, draw intersection-point
-  (let [[x y] intersection-point]
-    (qpu/fill [255 0 0 100])
-    (q/rect (- x 20) 0 40 (q/height))
-    (q/ellipse x y 30 30)))
+  ;; ;; draw intersection-point
+  ;; (let [[x y] intersection-point]
+  ;;   (qpu/fill [255 0 0 100])
+  ;;   (q/rect (- x 20) 0 40 (q/height))
+  ;;   (q/ellipse x y 30 30))
 
-(defn wave-tween
+
+
+  )
+
+(declare pre-in-tween)
+(declare in-tween)
+(declare out-tween)
+(declare bob-tween)
+
+(defn max-out [] (* (q/height) 0.1))
+(def preload 3)
+
+(defn pre-in-tween
   []
   (qptween/->tween
    :sea-level
-   (* (q/height) 0.06)
+   preload
+   :step-count 80
+   :easing-fn qptween/ease-out-sine
+   :on-complete-fn (fn [beach]
+                     (qptween/add-tween beach (in-tween)))))
+
+(defn in-tween
+  []
+  (qptween/->tween
+   :sea-level
+   (- 0 (max-out) preload)
+   :step-count 400
+   :easing-fn qptween/ease-in-out-cubic
+   :on-complete-fn (fn [beach]
+                     (qptween/add-tween beach (out-tween)))))
+
+(defn out-tween
+  []
+  (qptween/->tween
+   :sea-level
+   (max-out)
    :step-count 300
    :easing-fn qptween/ease-in-out-quad
+   :on-complete-fn (fn [beach]
+                     (qptween/add-tween beach (bob-tween)))))
+
+(defn bob-tween
+  []
+  (qptween/->tween
+   :sea-level
+   -3
+   :easing-fn qptween/ease-in-out-sine
    :yoyo? true
-   :repeat-times ##Inf))
+   :repeat-times (inc (rand-int 2))
+   :on-complete-fn (fn [beach]
+                     (qptween/add-tween beach (pre-in-tween)))))
 
 (defn beach
   []
-  (qptween/add-tween
-   {:sprite-group :beach
-    :update-fn update-beach
-    :draw-fn draw-beach
-    :sea-level (* (q/height) 0.8)
-    :sand-left [0 (* (q/height) 0.9)]
-    :sand-right [(q/width) (* (q/height) 0.75)]
-    ;; this will be set in the first update.
-    :intersection-point [0 0]}
-   (wave-tween)))
+  (-> {:sprite-group :beach
+       :update-fn update-beach
+       :draw-fn draw-beach
+       :sea-level (* (q/height) 0.75)
+       :sand-left [0 (* (q/height) 0.9)]
+       :sand-right [(q/width) (* (q/height) 0.7)]
+       ;; this will be set in the first update.
+       :intersection-point [0 0]}
+      (qptween/add-tween (out-tween))))

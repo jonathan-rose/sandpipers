@@ -16,14 +16,17 @@
   [state]
   (q/no-stroke)
   (qpu/background common/sky-blue)
-  (qpsprite/draw-scene-sprites state))
+  (-> state
+      (qpsprite/draw-scene-sprites-by-layers [:surf :beach])))
 
 (defn update-level-01
   "Called each frame, update the sprites in the current scene"
   [state]
   (-> state
+      common/add-surf
       qpsprite/update-scene-sprites
-      qptween/update-sprite-tweens))
+      qptween/update-sprite-tweens
+      common/remove-dead-sprites))
 
 (defn init
   "Initialise this scene"
