@@ -3,9 +3,9 @@
 * Pleasing menu similar to the main game - overlay on beach scene.
 * A moveable bird sprite - animations: walk, jump, flap, peck.
 * ~~An animated wave - sporadic, different magnitude / depths.~~
-* Randomly placed food after each wave.
+* ~~Randomly placed food after each wave.~~
 * ~~Wet sand that dries out.~~
-* Indication of shrimp / crab / worm location.
+* ~~Indication of shrimp / crab / worm location.~~
 * Tagline - world's ~~first~~  best game about Sandpipers.
 * Sunset with shifting sky colours.
 * Sound effects:
@@ -13,7 +13,7 @@
   * ~~music~~
   * pitter patter of tiny bird feet
   * pecking
-* A beach / slope as ground.
+* ~~A beach / slope as ground.~~
 * Set up a colour palette.
 
 ## Stretch goals
@@ -32,4 +32,4 @@
 * ~~Sloping beach~~
 * ~~Wave~~
 * ~~Wet sand~~
-* Random food
+* ~~Random food~~

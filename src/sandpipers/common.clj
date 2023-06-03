@@ -95,3 +95,11 @@
                                                       (remove (fn [s]
                                                                 (nil? (:sprite-group s)))
                                                               ss))))
+
+;; Food generation
+
+
+(defn get-food
+  [{:keys [current-scene] :as state}]
+  (->> (get-in state [:scenes current-scene :sprites])
+       (filter (qpsprite/group-pred :food))))
