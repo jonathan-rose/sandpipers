@@ -1,4 +1,6 @@
-(ns sandpipers.common)
+(ns sandpipers.common
+  (:require [quip.sprite :as qpsprite]
+            [sandpipers.sprites.surf :as surf]))
 
 ;; beach colours
 (def sand-yellow [244 201 103])
@@ -67,3 +69,29 @@
                     (- m1 m2))
                y (+ (* m1 x) b1)]
            [x y]))))))
+
+;; Surf generation
+
+(defn get-beach
+  [{:keys [current-scene] :as state}]
+  (->> (get-in state [:scenes current-scene :sprites])
+       (filter (qpsprite/group-pred :beach))
+       first))
+
+(defn add-surf
+  [{:keys [current-scene] :as state}]
+  (let [beach (get-beach state)]
+    (update-in state
+               [:scenes current-scene :sprites]
+               conj
+               (surf/surf-particle (:intersection-point beach))
+               (surf/surf-particle (:intersection-point beach)))))
+
+;; @TODO: something funcky going on here, some sprites are ending up
+;; as just {:tweens ()}, whatever, this clears them.
+(defn remove-dead-sprites
+  [{:keys [current-scene] :as state}]
+  (update-in state [:scenes current-scene :sprites] (fn [ss]
+                                                      (remove (fn [s]
+                                                                (nil? (:sprite-group s)))
+                                                              ss))))
