@@ -2,8 +2,7 @@
   (:require [quip.tween :as qptween]
             [quip.utils :as qpu]
             [quip.sprite :as qpsprite]
-            [quil.core :as q]
-            [sandpipers.common :as common]))
+            [quil.core :as q]))
 
 (defn update-rotation
   [{:keys [rvel] :as s}]
@@ -23,7 +22,7 @@
 
 (defn draw-surf
   [{:keys [pos alpha rotation]}]
-  (qpu/fill (conj common/white alpha))
+  (qpu/fill [242 243 226 alpha])
   (let [[x y] pos
         [x1 y1] (map + pos
                      (qpu/rotate-vector [0 -5] rotation))
