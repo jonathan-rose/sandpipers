@@ -29,7 +29,48 @@
 (defn sprites
   "The initial list of sprites for this scene"
   []
-  [(animated-sandpiper [400 100] :run-left)])
+  [(animated-sandpiper [400 100] :idle)])
+
+(defn handle-player-movement
+  [state]
+  (let [currently-held? (:held-keys state)]
+    (cond
+      (currently-held? :left)
+      (qpsprite/update-sprites-by-pred
+       state
+       (qpsprite/group-pred :player)
+       (fn [s]
+         (-> s
+             (update :vel (fn [[xvel yvel]]
+                            [(max (:min-speed s) (- xvel 0.2)) yvel]))
+             ((fn [sprite]
+                (if (not= (get sprite :current-animation) :run-left)
+                  (qpsprite/set-animation sprite :run-left)
+                  sprite))))))
+
+      (currently-held? :right)
+      (qpsprite/update-sprites-by-pred
+       state
+       (qpsprite/group-pred :player)
+       (fn [s]
+         (-> s
+             (update :vel (fn [[xvel yvel]]
+                            [(min (:max-speed s) (+ xvel 0.2)) yvel]))
+             ((fn [sprite]
+                (if (not= (get sprite :current-animation) :run-right)
+                  (qpsprite/set-animation sprite :run-right)
+                  sprite))))))
+
+      :else
+      (qpsprite/update-sprites-by-pred
+       state
+       (qpsprite/group-pred :player)
+       (fn [s]
+         (-> s
+             (update :vel (fn [[xvel yvel]]
+                            (let [newx (* xvel 0.8)]
+                              [(if (< (Math/abs newx) 0.1) 0 newx) yvel])))
+             (qpsprite/set-animation :idle)))))))
 
 (defn draw-level-01
   "Called each frame, draws the current scene to the screen"
@@ -44,23 +85,6 @@
       handle-player-movement
       qpsprite/update-scene-sprites
       qptween/update-sprite-tweens))
-
-(defn handle-player-movement
-  [state]
-  (let [currently-held? (:held-keys state)]
-    (cond
-      (currently-held? :left) (qpsprite/update-sprites-by-pred state (qpsprite/group-pred :player) (fn [s]
-                                                                                                     (update s :vel (fn [[xvel yvel]]
-                                                                                                                      [(max (:min-speed s) (- xvel 0.2)) yvel]))))
-      (currently-held? :right) (qpsprite/update-sprites-by-pred state (qpsprite/group-pred :player) (fn [s]
-                                                                                                      (update s :vel (fn [[xvel yvel]]
-                                                                                                                       [(min (:max-speed s) (+ xvel 0.2)) yvel]))))
-      ;; (currently-held? :down) (qpsprite/update-sprites-by-pred state (qpsprite/group-pred :player) (fn [s]
-      ;;                                                                                                 (update s :vel (fn [[xvek yvel]]
-      ;;                                                                                                                  [0 yvel]))))
-      :else (qpsprite/update-sprites-by-pred state (qpsprite/group-pred :player) (fn [s] (update s :vel (fn [[xvel yvel]]
-                                                                                                          (let [newx (* xvel 0.8)]
-                                                                                                            [(if (< (Math/abs newx) 0.1) 0 newx) yvel]))))))))
 
 (defn init
   "Initialise this scene"
