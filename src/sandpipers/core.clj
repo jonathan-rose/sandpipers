@@ -1,12 +1,14 @@
 (ns sandpipers.core
   (:gen-class)
   (:require [quip.core :as qp]
+            [quip.sound :as qpsound]
             [sandpipers.scenes.menu :as menu]
             [sandpipers.scenes.level-01 :as level-01]))
 
 (defn setup
   "The initial state of the game"
   []
+  (qpsound/loop-music "Dewdrop Fantasy (shortened).wav")
   {})
 
 (defn init-scenes
@@ -28,5 +30,3 @@
 (defn -main
   [& args]
   (qp/run sandpipers-game))
-
-(-main)

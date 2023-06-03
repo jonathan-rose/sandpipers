@@ -1,9 +1,13 @@
 (ns sandpipers.scenes.level-01
-  (:require [quip.sprite :as qpsprite]
+  (:require [quil.core :as q]
+            [quip.collision :as qpcollision]
+            [quip.sprite :as qpsprite]
+            [quip.tween :as qptween]
             [quip.utils :as qpu]
-            [quip.tween :as qptween]))
-
-(def light-green [133 255 199])
+            [sandpipers.common :as common]
+            [sandpipers.sprites.beach :as beach]
+            [sandpipers.sprites.food :as food]
+            [quip.delay :as qpdelay]))
 
 (defn animated-sandpiper
   [pos current-animation]
@@ -32,7 +36,8 @@
 (defn sprites
   "The initial list of sprites for this scene"
   []
-  [(animated-sandpiper [400 100] :idle)])
+  [(animated-sandpiper [400 100] :idle)
+   (beach/beach)])
 
 (defn handle-player-movement
   [state]
@@ -84,23 +89,46 @@
                               [(if (< (Math/abs newx) 0.1) 0 newx) yvel])))
              (qpsprite/set-animation :idle)))))))
 
+(defn colliders
+  []
+  [(qpcollision/collider
+    :beach
+    :food
+    qpcollision/identity-collide-fn
+    (constantly nil)
+    :collision-detection-fn (fn [{[ix iy] :intersection-point
+                                  [wx wy] :wet-sand-point
+                                  :as beach}
+                                 {[x y] :pos
+                                  :as  food}]
+                              (not (and (<= ix x wx)
+                                        (<= wy y iy)))))])
+
 (defn draw-level-01
   "Called each frame, draws the current scene to the screen"
   [state]
-  (qpu/background light-green)
-  (qpsprite/draw-scene-sprites state))
+  (q/no-stroke)
+  (qpu/background common/sky-blue)
+  (-> state
+      (qpsprite/draw-scene-sprites-by-layers [:food :player :surf :beach])))
 
 (defn update-level-01
   "Called each frame, update the sprites in the current scene"
   [state]
   (-> state
       handle-player-movement
+      common/add-surf
       qpsprite/update-scene-sprites
-      qptween/update-sprite-tweens))
+      qptween/update-sprite-tweens
+      common/remove-dead-sprites
+      qpdelay/update-delays
+      qpcollision/update-collisions))
 
 (defn init
   "Initialise this scene"
   []
   {:sprites (sprites)
    :draw-fn draw-level-01
-   :update-fn update-level-01})
+   :update-fn update-level-01
+   :colliders (colliders)
+   :delays [(food/food-delay)]})

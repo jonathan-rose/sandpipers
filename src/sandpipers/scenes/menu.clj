@@ -3,11 +3,10 @@
             [quip.sprite :as qpsprite]
             [quip.sprites.button :as qpbutton]
             [quip.scene :as qpscene]
-            [quip.utils :as qpu]))
-
-(def white [230 230 230])
-(def grey [57 57 58])
-(def dark-green [41 115 115])
+            [quip.tween :as qptween]
+            [quip.utils :as qpu]
+            [sandpipers.common :as common]
+            [sandpipers.sprites.beach :as beach]))
 
 (defn on-click-play
   "Transition from this scene to `:level-01` with a 30 frame fade-out"
@@ -17,24 +16,30 @@
 (defn sprites
   "The initial list of sprites for this scene"
   []
-  [(qpbutton/button-sprite "Play"
+  [(beach/beach)
+   (qpbutton/button-sprite "Play"
                            [(* 0.5 (q/width))
                             (* 0.5 (q/height))]
-                           :color grey
-                           :content-color white
+                           :color common/black
+                           :content-color common/white
                            :on-click on-click-play)])
 
 (defn draw-menu
   "Called each frame, draws the current scene to the screen"
   [state]
-  (qpu/background dark-green)
-  (qpsprite/draw-scene-sprites state))
+  (q/no-stroke)
+  (qpu/background common/sky-blue)
+  (-> state
+      (qpsprite/draw-scene-sprites-by-layers [:surf :beach])))
 
 (defn update-menu
   "Called each frame, update the sprites in the current scene"
   [state]
   (-> state
-      qpsprite/update-scene-sprites))
+      common/add-surf
+      qpsprite/update-scene-sprites
+      qptween/update-sprite-tweens
+      common/remove-dead-sprites))
 
 (defn init
   "Initialise this scene"
