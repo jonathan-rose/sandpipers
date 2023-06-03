@@ -30,18 +30,27 @@
                                    :y-offset 3
                                    :frame-delay 10}}
           :current-animation current-animation)
-          :max-speed 12
-          :min-speed -12))
+         :current-speed 0
+         :max-speed 12
+         :min-speed -12))
 
 (defn sprites
   "The initial list of sprites for this scene"
   []
-  [(animated-sandpiper [400 100] :idle)
-   (beach/beach)])
+  (let [{:keys [sand-left sand-right] :as beach} (beach/beach)
+        [x y] (map + sand-left (map - sand-right sand-left))]
+    [(animated-sandpiper [x (- y 64)] :idle)
+     beach]))
+
+(defn update-vel
+  [{:keys [current-speed] :as s} slope-vector]
+  (assoc s :vel (map (partial * current-speed) slope-vector)))
 
 (defn handle-player-movement
   [state]
-  (let [currently-held? (:held-keys state)]
+  (let [currently-held? (:held-keys state)
+        {:keys [sand-left sand-right] :as beach} (common/get-beach state)
+        slope (beach/slope-vector sand-left sand-right)]
     (cond
       (currently-held? :left)
       (qpsprite/update-sprites-by-pred
@@ -49,8 +58,9 @@
        (qpsprite/group-pred :player)
        (fn [s]
          (-> s
-             (update :vel (fn [[xvel yvel]]
-                            [(max (:min-speed s) (- xvel 0.5)) yvel]))
+             (update :current-speed (fn [current-speed]
+                                      (max (:min-speed s) (- current-speed 0.5))))
+             (update-vel slope)
              ((fn [sprite]
                 (if (not= (get sprite :current-animation) :run-left)
                   (qpsprite/set-animation sprite :run-left)
@@ -62,8 +72,9 @@
        (qpsprite/group-pred :player)
        (fn [s]
          (-> s
-             (update :vel (fn [[xvel yvel]]
-                            [(min (:max-speed s) (+ xvel 0.5)) yvel]))
+             (update :current-speed (fn [current-speed]
+                                      (min (:max-speed s) (+ current-speed 0.5))))
+             (update-vel slope)
              ((fn [sprite]
                 (if (not= (get sprite :current-animation) :run-right)
                   (qpsprite/set-animation sprite :run-right)
@@ -75,7 +86,8 @@
        (qpsprite/group-pred :player)
        (fn [s]
          (-> s
-             (update :vel (fn [[xvel yvel]] [0 yvel]))
+             (assoc :current-speed 0)
+             (assoc :vel [0 0])
              (qpsprite/set-animation :eat))))
 
       :else
@@ -84,9 +96,10 @@
        (qpsprite/group-pred :player)
        (fn [s]
          (-> s
-             (update :vel (fn [[xvel yvel]]
-                            (let [newx (* xvel 0.8)]
-                              [(if (< (Math/abs newx) 0.1) 0 newx) yvel])))
+             (update :current-speed (fn [current-speed]
+                                      (let [new-speed (* current-speed 0.8)]
+                                        (if (< (Math/abs new-speed) 0.1) 0 new-speed))))
+             (update-vel slope)
              (qpsprite/set-animation :idle)))))))
 
 (defn colliders
