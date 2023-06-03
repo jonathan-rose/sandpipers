@@ -83,7 +83,9 @@
   (let [beach (get-beach state)]
     (update-in state
                [:scenes current-scene :sprites]
-               conj (surf/surf-particle (:intersection-point beach)))))
+               conj
+               (surf/surf-particle (:intersection-point beach))
+               (surf/surf-particle (:intersection-point beach)))))
 
 ;; @TODO: something funcky going on here, some sprites are ending up
 ;; as just {:tweens ()}, whatever, this clears them.

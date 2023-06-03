@@ -4,7 +4,7 @@
 * A moveable bird sprite - animations: walk, jump, flap, peck.
 * ~~An animated wave - sporadic, different magnitude / depths.~~
 * Randomly placed food after each wave.
-* Wet sand that dries out.
+* ~~Wet sand that dries out.~~
 * Indication of shrimp / crab / worm location.
 * Tagline - world's ~~first~~  best game about Sandpipers.
 * Sunset with shifting sky colours.
@@ -31,5 +31,5 @@
 
 * ~~Sloping beach~~
 * ~~Wave~~
-* Wet sand
+* ~~Wet sand~~
 * Random food
