@@ -23,6 +23,7 @@
        48
        "img/crab-64.png"
        :rotation 70)
+      (assoc :pecked-times 0)
       (qptween/add-tween (qptween/->tween
                           :pos
                           8

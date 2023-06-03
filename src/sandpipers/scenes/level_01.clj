@@ -114,28 +114,65 @@
                                   :as beach}
                                  {[x y] :pos
                                   :as  food}]
-                              (not (and (<= ix x wx)
-                                        (<= wy y iy)))))])
+                              (not (<= ix x wx))))])
 
 (defn draw-level-01
   "Called each frame, draws the current scene to the screen"
   [state]
   (q/no-stroke)
   (qpu/background common/sky-blue)
+
+  ;; Draw score
+  (qpu/fill common/white)
+  (q/text-align :left :top)
+  (q/text (str (:score state)) 30 30)
+
   (-> state
       (qpsprite/draw-scene-sprites-by-layers [:food :player :surf :beach])))
+
+(defn update-score
+  [{:keys [current-scene] :as state}]
+  (let [crabs (common/get-food state)
+        eaten (filter #(< 5 (:pecked-times %)) crabs)
+        alive (remove #(< 5 (:pecked-times %)) crabs)
+        increment (count eaten)]
+    (-> state
+        (update :score + increment)
+        (update-in [:scenes current-scene :sprites]
+                   (fn [sprites]
+                     (filter
+                      (fn [s]
+                        (or (not= :food (:sprite-group s))
+                            (< (:pecked-times s) 6)))
+                      sprites))))))
 
 (defn update-level-01
   "Called each frame, update the sprites in the current scene"
   [state]
   (-> state
       handle-player-movement
+      update-score
       common/add-surf
       qpsprite/update-scene-sprites
       qptween/update-sprite-tweens
       common/remove-dead-sprites
       qpdelay/update-delays
       qpcollision/update-collisions))
+
+(defn handle-peck
+  [state e]
+  (if (= :down (:key e))
+    (let [{[bx by] :pos :as bird} (common/get-player state)]
+      (qpsprite/update-sprites-by-pred
+       state
+       (qpsprite/group-pred :food)
+       (fn [{[cx cy] :pos :as crab}]
+         (if (qpcollision/w-h-rects-collide? bird crab)
+           (-> crab
+               (update :pos (fn [[x y]] [x (- y 5)]))
+               (update :pecked-times inc))
+           crab))))
+    state))
 
 (defn init
   "Initialise this scene"
@@ -144,4 +181,5 @@
    :draw-fn draw-level-01
    :update-fn update-level-01
    :colliders (colliders)
-   :delays [(food/food-delay)]})
+   :delays [(food/food-delay)]
+   :key-pressed-fns [handle-peck]})

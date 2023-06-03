@@ -98,8 +98,13 @@
 
 ;; Food generation
 
-
 (defn get-food
   [{:keys [current-scene] :as state}]
   (->> (get-in state [:scenes current-scene :sprites])
        (filter (qpsprite/group-pred :food))))
+
+(defn get-player
+  [{:keys [current-scene] :as state}]
+  (->> (get-in state [:scenes current-scene :sprites])
+       (filter (qpsprite/group-pred :player))
+       first))

@@ -9,7 +9,7 @@
   "The initial state of the game"
   []
   (qpsound/loop-music "Dewdrop Fantasy (shortened).wav")
-  {})
+  {:score 0})
 
 (defn init-scenes
   "Map of scenes in the game"
