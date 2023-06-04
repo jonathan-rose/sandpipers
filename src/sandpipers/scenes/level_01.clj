@@ -127,6 +127,13 @@
   (q/text-align :left :top)
   (q/text (str (:score state)) 30 30)
 
+  ;; Draw instructions
+  (when (:instruction-text state)
+    (q/text-align :center)
+    (q/text (:instruction-text state)
+            (/ (q/width) 2)
+            (- (/ (q/height) 2) 100)))
+
   (-> state
       (qpsprite/draw-scene-sprites-by-layers [:food :player :surf :beach])))
 
@@ -174,6 +181,56 @@
            crab))))
     state))
 
+(defn left-right-move
+  [state]
+  (assoc state :instruction-text "Press left and right to move"))
+
+(defn down-peck
+  [state]
+  (assoc state :instruction-text "Press down to peck the delicious crabs"))
+
+(defn sunshine
+  [state]
+  (assoc state :instruction-text "The sun is warm and bright"))
+
+(defn sea-air
+  [state]
+  (assoc state :instruction-text "The breeze is salty and refreshing"))
+
+(defn nice
+  [state]
+  (assoc state :instruction-text "It's nice to be a sandpiper"))
+
+(defn good
+  [state]
+  (assoc state :instruction-text "You are good at being a sandpiper"))
+
+(defn well-done
+  [state]
+  (assoc state :instruction-text "Well done"))
+
+(defn clear-text
+  [state]
+  (dissoc state :instruction-text))
+
+(defn instruction-delays
+  []
+  (qpdelay/sequential-delays
+   [[200 left-right-move]
+    [200 clear-text]
+    [300 down-peck]
+    [200 clear-text]
+    [300 sunshine]
+    [200 clear-text]
+    [300 sea-air]
+    [200 clear-text]
+    [300 nice]
+    [200 clear-text]
+    [600 good]
+    [200 clear-text]
+    [200 well-done]
+    [200 clear-text]]))
+
 (defn init
   "Initialise this scene"
   []
@@ -181,5 +238,6 @@
    :draw-fn draw-level-01
    :update-fn update-level-01
    :colliders (colliders)
-   :delays [(food/food-delay)]
+   :delays (concat (instruction-delays)
+                   [(food/food-delay)])
    :key-pressed-fns [handle-peck]})
