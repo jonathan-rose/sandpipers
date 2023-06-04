@@ -42,7 +42,7 @@
            existing-food (common/get-food state)
            options-vector (map - wet-sand-point intersection-point)
            size (qpu/magnitude options-vector)]
-       (-> (if (< 300 size)
+       (-> (if (< (/ (q/height) 8) size)
              (update-in state [:scenes current-scene :sprites]
                         conj (food intersection-point options-vector))
              state)
